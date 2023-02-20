@@ -50,7 +50,7 @@ class AlchemicalStorage:
         :param element_name: Name of the element to remove.
         :return: The removed AlchemicalElement object or None.
         """
-        tempvariable = AlchemicalElement()
+        tempvariable = AlchemicalElement("test")
         for elementIndex in range(1, len(self.element_list)):
             elementIndex = -elementIndex
             if self.element_list[elementIndex].name == element_name and isinstance(self.element_list[elementIndex], AlchemicalElement):

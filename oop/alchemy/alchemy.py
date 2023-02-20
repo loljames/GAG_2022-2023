@@ -38,7 +38,7 @@ class AlchemicalStorage:
         if isinstance(element, AlchemicalElement):
             self.element_list.append(element)
         else:
-            pass
+            raise TypeError()
 
     def pop(self, element_name: str):
         """

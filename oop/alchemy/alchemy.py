@@ -103,14 +103,22 @@ class AlchemicalStorage:
         endstring = "Content:"
         if len(self.element_list) > 0: 
             for element in self.element_list:
-                if element in elementdict.keys():
-                    elementdict[element] += 1
+                #print(len(self.element_list))
+                
+                #print(element.name in elementdict.keys())
+                if element.name in elementdict.keys():
+                    print("nohallo.")
+                    elementdict[element.name] += 1
+                    print(element.name, elementdict[element.name])
                 else:
-                    elementdict[element] = 1
+                    elementdict[element.name] = 1
+                    print(element.name, elementdict[element.name])
+                #print(elementdict)
         
-            for keyelement in elementdict.keys():
-                print(keyelement)
-                endstring += f"\n * {keyelement.name} x {elementdict[element]}"
+            print(elementdict)
+            for keyelement in elementdict:
+                #print(f"----{keyelement}")
+                endstring += f"\n * {keyelement} x {elementdict[keyelement]}"
         else:
             endstring += "\n Empty."
         return endstring
@@ -122,13 +130,11 @@ if __name__ == '__main__':
     element_three = AlchemicalElement('Water')
     storage = AlchemicalStorage()
 
-    print(element_one)  # <AE: Fire>
-    print(element_two)  # <AE: Water>
+    #print(element_one)  # <AE: Fire>
+    #print(element_two)  # <AE: Water>
 
     storage.add(element_one)
     storage.add(element_two)
     storage.add(element_three)
 
     print(storage.get_content())
-
-    

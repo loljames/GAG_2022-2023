@@ -115,7 +115,7 @@ class AlchemicalStorage:
                     print(element.name, elementdict[element.name])
                 #print(elementdict)
         
-            print(elementdict)
+            dict(sorted(elementdict.items()))
             for keyelement in elementdict:
                 #print(f"----{keyelement}")
                 endstring += f"\n * {keyelement} x {elementdict[keyelement]}"

@@ -114,7 +114,6 @@ class AlchemicalStorage:
             endstring += "\n Empty."
         return endstring
 
-
 if __name__ == '__main__':
     element_one = AlchemicalElement('Fire')
     element_two = AlchemicalElement('Water')

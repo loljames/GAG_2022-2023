@@ -51,9 +51,10 @@ class AlchemicalStorage:
         :return: The removed AlchemicalElement object or None.
         """
         tempvariable = AlchemicalElement("test")
-        for elementIndex in range(1, len(self.element_list)):
+
+        for elementIndex in range(1, len(self.element_list) + 1):
             elementIndex = -elementIndex
-            if self.element_list[elementIndex].name == element_name and isinstance(self.element_list[elementIndex], AlchemicalElement):
+            if self.element_list[elementIndex].name == element_name:
                 tempvariable = self.element_list[elementIndex]
                 self.element_list.remove(self.element_list[elementIndex])
                 return tempvariable

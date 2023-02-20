@@ -130,3 +130,5 @@ if __name__ == '__main__':
     storage.add(element_three)
 
     print(storage.get_content())
+
+    

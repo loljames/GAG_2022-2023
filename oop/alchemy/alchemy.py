@@ -104,23 +104,16 @@ class AlchemicalStorage:
         """
         elementdict = {}
         endstring = "Content:"
+        self.element_list = sorted(self.element_list, key=lambda x: x.name)
         if len(self.element_list) > 0: 
             for element in self.element_list:
-                #print(len(self.element_list))
-                
-                #print(element.name in elementdict.keys())
+
                 if element.name in elementdict.keys():
-                    print("nohallo.")
                     elementdict[element.name] += 1
-                    print(element.name, elementdict[element.name])
                 else:
                     elementdict[element.name] = 1
-                    print(element.name, elementdict[element.name])
-                #print(elementdict)
         
-            dict(sorted(elementdict.items()))
             for keyelement in elementdict:
-                #print(f"----{keyelement}")
                 endstring += f"\n * {keyelement} x {elementdict[keyelement]}"
         else:
             endstring += "\n Empty."

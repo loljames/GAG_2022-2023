@@ -1,0 +1,191 @@
+from datetime import date
+import unittest
+
+class Client():
+
+  def __init__(self, id, basket, wallet = 0, goldclient = False):
+    """Client has id, basket, wallet and goldclient status. Goldclient gives 10% discount. Client has history of all purchases."""
+    self.id = id
+    self.basket = basket
+    self.goldclient = goldclient
+    self.historydict = {}
+    self.wallet = wallet
+  
+  def __repr__(self):
+    return_str = f"(((  {self.id}-{self.basket}, {self.wallet}€, goldclient = {self.goldclient}, {self.historydict}  )))"
+    return return_str
+  
+  def buy(self, basket, store):
+    """Buy items that are inside basket."""
+    if isinstance (basket, Basket) and isinstance(store, Store):
+      if (self.wallet >= basket.get_fullprice() and not self.goldclient) or (self.wallet >= basket.get_fullprice()*0.9 and self.goldclient):
+        if basket.date in self.historydict.keys():
+          for item in basket.basketlist:
+            self.historydict[basket.date].append(item)
+            store.store_historydict[basket.date].append(item)
+        else:
+          self.historydict[basket.date] = []
+          store.store_historydict[basket.date] = []
+          for item in basket.basketlist:
+            self.historydict[basket.date].append(item)
+            store.store_historydict[basket.date].append(item)
+        
+        if self.goldclient:
+          self.wallet -= (basket.get_fullprice() * 0.9)
+        else:
+          self.wallet -= basket.get_fullprice()
+        basket.empty()
+        store.add_client(self)
+        
+      else:
+        raise NotEnoughMoneyException()
+
+
+class Item():
+
+  def __init__(self, name, price, count):
+    """Item has name, price and amount/count"""
+    self.name = name
+    self.price = price
+    self.count = count
+  
+  def __repr__(self):
+    return_str = f"{self.name}({self.price}€):{self.count}"
+    return return_str
+
+
+class Basket():
+  def __init__(self, date = date.today()):
+    """Basket has date and list of items"""
+    self.basketlist = []
+    self.date = date
+  
+  def __repr__(self):
+    return_str = "[[ "
+    for item in self.basketlist:
+      return_str += item.name + "(" + str(item.price) + "€):" + str(item.count) + ", "
+    return_str += " ]]"
+    return return_str
+
+  def change_item_amount(self, name, store, amount = 1):
+    """Add or remove item amount in basket."""
+
+    if store.check_how_much_in_store(name) >= amount:
+      found = False
+      if len(self.basketlist) > 0:
+        for item in self.basketlist:
+          if item.name == name:
+            found = True
+            if (- amount) <= item.count:
+              item.count += amount
+              if amount < 0:
+                for i_item in store.store_itemlist:
+                  if i_item.name == name:
+                    store.add_item(i_item, (- amount))
+            else:
+              raise NotEnoughItemsInBasket()
+            
+            if item.count == 0:
+              self.basketlist.remove(item)
+
+        if not found:
+          raise NoSuchItemInBasketException()
+      else:
+        raise BasketEmptyExcpetion()
+    else:
+      raise NotEnoughItemsInStoreException()
+    
+  def add_item(self, item, store, amount = 1):
+      """Add item to basket from store."""
+      if item in store.store_itemlist:
+        if store.check_how_much_in_store(item.name) > 0:
+          self.basketlist.append(Item(item.name, item.price, 1))
+        else:
+          raise NotEnoughItemsInStoreException()
+      else:
+        raise NoSuchItemInStoreException()
+      if amount != 1:
+        self.change_item_amount(item.name, store, amount)
+      
+
+  def remove_item(self, item, store):
+    """Remove item object from basket(returns it to store)."""
+    found_store = False
+    for i_item in self.basketlist:
+      if item.name == i_item.name:
+        self.basketlist.remove(i_item)
+        found_store = True
+
+        found = False
+        for i_item in store.item_list:
+          if i_item.name == item.name and not found:
+            store.add_item(i_item, item.count)
+        if not found:
+          store.add_item(item, item.count)
+    if not found_store:
+      raise NoSuchItemInBasketException()
+
+  def get_fullprice(self):
+    """Return full price of everything in basket."""
+    price = 0
+    for item in self.basketlist:
+      price += item.price * item.count
+    return price
+  
+  def empty(self):
+    """Clear basket."""
+    self.basketlist.clear()
+
+
+class Store():
+
+  def __init__(self, store_historydict = {}, store_itemlist = [], clients = []):
+    """Store has history of all previous purchases, list of all items in store and list of clients."""
+    self.store_itemlist = store_itemlist
+    self.clients = clients
+    self.store_historydict = store_historydict
+  
+  def __repr__(self):
+    return_str = "{{ "
+    for item in self.store_itemlist:
+      return_str += item.name + "(" + str(item.price) + "€):" + str(item.count) + ", "
+    return_str += " }}"
+    return return_str
+
+  def add_client(self, client):
+    """Add client to store."""
+    if client not in self.clients:
+      self.clients.append(client)
+
+  def check_how_much_in_store(self, name):
+    """Return how much of item in store."""
+    found = False
+    for item in self.store_itemlist:
+      if item.name == name:
+        found = True
+        return item.count
+    if not found:
+      raise NoSuchItemInStoreException
+  
+  def remove_item(self, item, amount):
+    """Reduce amount of item in store which can lead to removal of item from store"""
+    if item in self.store_itemlist:
+      if item.count >= amount:
+        item.count -= amount
+      if item.count == 0:
+        self.store_itemlist.remove
+    else:
+      raise NoSuchItemInStoreException
+
+  def add_item(self, item:Item, amount = 1):
+    """Add item to store."""
+    if isinstance(item, Item):
+      found = False
+      for i_item in self.store_itemlist:
+        if i_item.name == item.name and not found:
+          found = True
+          item.count += amount
+      if not found:
+        self.store_itemlist.append(item)
+      
+  

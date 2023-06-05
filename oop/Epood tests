@@ -1,1 +1,144 @@
 
+class NotEnoughMoneyException(Exception):
+  pass
+
+class NotEnoughItemsInStoreException(Exception):
+  pass
+
+class NoSuchItemInStoreException(Exception):
+  pass
+
+class NotEnoughItemsInBasket(Exception):
+  pass
+
+class NoSuchItemInBasketException(Exception):
+  pass
+
+class BasketEmptyExcpetion(Exception):
+  pass
+
+
+
+class Tests():
+
+  def test_basket_change_casual(self):
+    Korv.change_item_amount("Pickles", Prisma, 3)
+    given = Korv.basketlist[0].count
+    assert 4 == given
+  
+  def test_basket_change_negativeamount(self):
+    Korv.change_item_amount("Pickles", Prisma, -2)
+    given = Korv.basketlist[0].count
+    assert 2 == given
+  
+  def test_basket_add_addnew_casual(self):
+    Korv.add_item(Pickles, Prisma)
+    given = Korv.basketlist[0].count
+    assert 1 == given
+  
+  def test_buy_casual_pickles_check_basketlength(self):
+    Client1.buy(Korv, Prisma)
+    given = len(Korv.basketlist)
+    assert 0 == given
+  
+  def test_buy_casual_people_check_history(self):
+    Korv.add_item(People, Prisma)
+    Client1.buy(Korv, Prisma)
+    given = Client1.historydict[date.today()][0].name
+    assert "People" == given
+  
+  def test_buy_goldclient_people_only_enoughmoney_with_goldclient(self):
+    Client2.buy(Korv, Prisma)
+    given = Client2.wallet
+    assert 0 == given
+  
+  def test_buy_goldclient_people_only_enoughmoney_with_goldclient(self):
+    Client2.buy(Korv, Prisma)
+    given = Client2.wallet
+    assert 0 == given
+  
+  def test_add_client_to_store(self):
+    Mogamed = Client(6, Korv, 212, False)
+    Prisma.add_client(Mogamed)
+    given = Prisma.clients[2]
+    assert Mogamed == given
+  
+  def test_check_store_history(self):
+    Korv.add_item(Shirts, Prisma)
+    Client1.buy(Korv, Prisma)
+    given = Prisma.store_historydict[date.today()][1].name
+    assert "Shirts" == given
+  
+  def test_check_item_amount_in_store(self):
+    given = Prisma.store_itemlist[0].count
+    assert 11 == given
+
+class Tests_exceptions(unittest.TestCase):
+
+  def test_basket_change_when_no_items(self):
+    Korv.change_item_amount("Pickles", Prisma, -2)
+    with self.assertRaises(BasketEmptyExcpetion):
+      Korv.change_item_amount("Pickles", Prisma, 1)
+
+  def test_basket_change_more_than_in_store(self):
+    with self.assertRaises(NotEnoughItemsInStoreException):
+      Korv.change_item_amount("Pickles", Prisma, 1100)
+
+  def test_buy_casual_people_not_enough_money_exception(self):
+    Korv.add_item(People, Prisma)
+    Korv.change_item_amount("People", Prisma, 9)
+    with self.assertRaises(NotEnoughMoneyException):
+      Client3.buy(Korv, Prisma)
+
+  
+if __name__ == "__main__":
+  
+  Client1 = Client(1, Basket(date.today()), 500, False)
+  Client2 = Client(2, Basket(date.today()), 1692, True)
+  Client3 = Client(3, Basket(date.today()), 0, False)
+  clients = [Client1, Client2, Client3]
+
+  Pickles = Item("Pickles", 5, 7)
+  People = Item("People", 188, 13)
+  Shirts = Item("Shirts", 20, 2)
+  items = [Pickles, People, Shirts]
+
+  Prisma = Store()
+  Korv = Basket()
+
+  print("") # empty line for clarity
+
+
+  for item in items:
+    Prisma.add_item(item)
+  print(Prisma) #-> Pickles(5€):7, People(188€):13, Shirts(20€):2, 
+
+  print(Korv) #-> [[ Pickles(5€):4,  ]]
+  print(Prisma) #-> {{ Pickles(5€):3, People(188€):13, Shirts(20€):2,  }}
+
+  print(Client1) #-> (((  1-[[]], 500€, goldclient = True, []  )))
+  print(People) #-> -( People(188€):13 )-
+
+
+  print("") # empty line for clarity
+  print("")
+  print("")
+
+  tests = Tests()
+  exceptiontests = Tests_exceptions()
+
+  tests.test_basket_add_addnew_casual()
+  tests.test_basket_change_casual()
+  tests.test_basket_change_negativeamount()
+  exceptiontests.test_basket_change_when_no_items()
+  exceptiontests.test_basket_change_more_than_in_store()
+
+  tests.buy_casual_pickles_check_basketlength()
+  tests.buy_casual_people_check_history()
+  exceptiontests.buy_casual_people_not_enough_money_exception()
+  tests.buy_goldclient_people_only_enoughmoney_with_goldclient()
+
+  tests.add_client_to_store()
+  tests.check_store_history()
+  tests.check_item_amount_in_store()
+
